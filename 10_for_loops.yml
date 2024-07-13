@@ -1,0 +1,14 @@
+---
+- name: Using For loops
+  hosts: serverA
+  become: true
+  vars: 
+    - apps: [yum,nginx,httpd,telnet,vim]
+
+  tasks:
+  - name: Installing all apps
+    yum:
+      name: "{{ item }}"
+      state: present
+    tags: i-nginx
+    with_items: "{{ apps }}"

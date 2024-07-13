@@ -1,0 +1,12 @@
+---
+- name: Copy files to remote server
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Copy Files
+    copy:
+      src: /home/pranjal/myfile.txt
+      dest: /home/pranjal/
+      mode: ugo+rw
+      backup: true

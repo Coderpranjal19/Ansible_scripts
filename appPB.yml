@@ -1,0 +1,20 @@
+---
+- name: App install 
+  hosts: serverA
+  become: true
+  vars:
+    - app: nginx
+
+  tasks:
+  - name: install nginx
+    yum:
+      name: "{{ app }}"
+      state: present
+    tags: i-nginx
+
+  - name: Start nginx
+    service:
+      name: "{{ app }}"
+      state: started
+      enabled: true
+    tags: ss-nginx

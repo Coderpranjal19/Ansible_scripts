@@ -1,0 +1,11 @@
+---
+- name: Modify Cron job
+  hosts: all
+  become: true
+
+  tasks:
+  - name: remove cron job
+    cron:
+      name: Run test script
+      state: absent
+      user: pranjal

@@ -1,0 +1,11 @@
+---
+- name: Create user with password
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: User passwd
+    user:
+      name: nick
+      update_password: always
+      password: "{{'123' | password_hash('sha512')}}"

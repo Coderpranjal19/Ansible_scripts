@@ -1,0 +1,15 @@
+---
+- name: user mgm
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Add nick user
+    user:
+      name: "{{ item }}"
+      comment: It was optional to provide
+      shell: /bin/bash
+    loop:
+      - raju
+      - shyam
+      - baburao

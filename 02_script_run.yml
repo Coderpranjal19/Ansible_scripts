@@ -1,0 +1,11 @@
+---
+- name: Run script
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Running script in remote
+    shell: ./test.sh >> test.log
+    args:
+      chdir: /home/pranjal/scripts/
+      creates: test.log

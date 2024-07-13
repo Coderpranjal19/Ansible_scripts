@@ -1,0 +1,9 @@
+---
+- name: first PB
+  hosts: all
+
+  tasks: 
+  - name: check connectivity
+    ping:
+  - name: "Print output"
+    debug: msg="Alright!!" 

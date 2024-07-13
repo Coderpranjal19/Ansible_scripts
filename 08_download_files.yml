@@ -1,0 +1,14 @@
+---
+- name: Download files from internet to remote
+  hosts: all
+  become: true
+
+
+  tasks:
+  - name: Download file
+    get_url:
+      url: https://www.python.org/ftp/python/3.12.4/Python-3.12.4.tar.xz
+      dest: /home/pranjal/
+      owner: pranjal
+      group: pranjal
+      mode: 0777
