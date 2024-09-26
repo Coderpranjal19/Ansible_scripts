@@ -1,0 +1,94 @@
+---
+- name: Create an Azure VM
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    resource_group: ansiblePrac
+    location: centralindia
+    vm_name: myAzureVM
+    vm_size: Standard_B1s
+    admin_username: azureuser
+    admin_password: 'Azureuser19'
+    image:
+      offer: UbuntuServer
+      publisher: Canonical
+      sku: 20_04-lts
+      version: latest
+    network_security_group: myNetworkSecurityGroup
+    virtual_network: myVnet
+    subnet: mySubnet
+    public_ip_name: myPublicIP
+    ip_allocation_method: Dynamic
+
+  tasks:
+    - name: Create a resource group
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    - name: Create a virtual network
+      azure.azcollection.azure_rm_virtualnetwork:
+        resource_group: "{{ resource_group }}"
+        name: "{{ virtual_network }}"
+        address_prefixes: "10.0.0.0/16"
+        dns_servers: []
+
+    - name: Create a subnet
+      azure.azcollection.azure_rm_subnet:
+        resource_group: "{{ resource_group }}"
+        name: "{{ subnet }}"
+        virtual_network: "{{ virtual_network }}"
+        address_prefix: "10.0.1.0/24"
+
+    - name: Create a network security group
+      azure.azcollection.azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "{{ network_security_group }}"
+        location: "{{ location }}"
+        rules:
+          - name: AllowSSH
+            protocol: Tcp
+            direction: Inbound
+            access: Allow
+            priority: 1000
+            source_address_prefix: "*"
+            destination_address_prefix: "*"
+            destination_port_range: "22"
+
+    - name: Create a public IP address
+      azure.azcollection.azure_rm_publicipaddress:
+        resource_group: "{{ resource_group }}"
+        allocation_method: "{{ ip_allocation_method }}"
+        name: "{{ public_ip_name }}"
+        location: "{{ location }}"
+        sku: Basic
+
+    - name: Create a network interface
+      azure.azcollection.azure_rm_networkinterface:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}NIC"
+        location: "{{ location }}"
+        virtual_network: "{{ virtual_network }}"
+        subnet: "{{ subnet }}"
+        security_group: "{{ network_security_group }}"
+        public_ip_name: "{{ public_ip_name }}"
+
+    - name: Create VM
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        vm_size: "{{ vm_size }}"
+        admin_username: "{{ admin_username }}"
+        admin_password: "{{ admin_password }}"
+        network_interfaces: "{{ vm_name }}NIC"
+        image:
+          offer: "{{ image.offer }}"
+          publisher: "{{ image.publisher }}"
+          sku: "{{ image.sku }}"
+          version: "{{ image.version }}"
+
+    - name: Output VM details
+      debug:
+        msg: "Azure VM '{{ vm_name }}' has been created in the resource group '{{ resource_group }}'."
+

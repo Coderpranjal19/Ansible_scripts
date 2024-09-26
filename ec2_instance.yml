@@ -1,0 +1,50 @@
+---
+- name: Launch EC2 Ubuntu instance
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        key_name: devops                # Specify your existing key pair name
+        instance_type: t2.micro             # Specify the instance type
+        image_id: ami-0e86e20dae9224db8     # Ubuntu 20.04 AMI ID (region-specific)
+        region: us-east-1c                  # Specify the region
+        wait: yes                           # Wait until the instance is running
+        tags:
+          Name: "Ansible EC2 Ubuntu Node"   # Tag the instance for identification
+        count: 1                            # Number of instances to launch
+      register: ec2_info
+
+    - name: Add new instance to inventory
+      add_host:
+        name: "{{ ec2_info.instances[0].public_ip_address }}"
+        group: launched
+
+    - name: Wait for SSH to become available
+      wait_for_connection:
+        delay: 60
+        timeout: 300
+
+    - name: Display the instance's public IP
+      debug:
+        msg: "The EC2 instance has been launched with public IP: {{ ec2_info.instances[0].public_ip_address }}"
+
+- name: Configure EC2 instance
+  hosts: launched
+  become: yes
+  tasks:
+    - name: Update and upgrade Ubuntu packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Docker (optional)
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+
+    - name: Start and enable Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        state: started
