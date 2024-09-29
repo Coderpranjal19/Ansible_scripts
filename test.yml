@@ -9,8 +9,8 @@
     default_container_image: pranjal1911/demo-todo-app:03
     container_port: 5000
     host_port: 80
-    host_volume_path: "/var/lib/docker/volumes/myvol/_data"        # Path on the host to mount
-    container_volume_path: "/app/data" # Path in the container to mount the volume
+    host_volume_path: "/var/lib/docker/volumes/myvol/"        # Path on the host to mount
+    container_volume_path: "/app/" # Path in the container to mount the volume
 
   tasks:
     - name: Install required system packages
